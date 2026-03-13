@@ -1,0 +1,188 @@
+---
+title: API Setup
+description: Configure and integrate with the CO2 monitoring API
+---
+
+## Overview
+
+The CO2 Monitor application connects to a cloud-based API to fetch real-time CO2 sensor data. This page covers the API configuration, implementation details, and error handling.
+
+## API Endpoint
+
+The application uses the following endpoint to retrieve CO2 measurements:
+
+```
+https://co2-api.vercel.app/api/co2
+```
+
+<Info>
+The API is hosted on Vercel and provides real-time CO2 data from connected sensors.
+</Info>
+
+## Implementation
+
+### API Client Setup
+
+The application uses Axios for HTTP requests. The API integration is implemented in the `CO2Dashboard` component:
+
+```javascript
+import axios from "axios";
+
+const response = await axios.get("https://co2-api.vercel.app/api/co2");
+const { co2, timestamp } = response.data;
+```
+
+### Response Format
+
+The API returns a JSON object with the following structure:
+
+```json
+{
+  "co2": 450,
+  "timestamp": "13/03/26, 10:30:00 a.m."
+}
+```
+
+<CardGroup cols={2}>
+  <Card title="co2" icon="gauge">
+    The current CO2 level in parts per million (ppm)
+  </Card>
+  <Card title="timestamp" icon="clock">
+    The measurement time in DD/MM/YY, HH:MM:SS format
+  </Card>
+</CardGroup>
+
+## Polling Configuration
+
+### Fetch Interval
+
+The application polls the API every 5 seconds to retrieve updated CO2 readings:
+
+```javascript
+const fetchData = async () => {
+    try {
+        const response = await axios.get("https://co2-api.vercel.app/api/co2");
+        const { co2, timestamp } = response.data;
+
+        setLatestCO2(co2);
+        setCo2Data((prevData) => {
+            const newData = [...prevData, co2];
+            if (newData.length > 10) newData.shift();
+            return newData;
+        });
+
+        setTimestamps((prevTimestamps) => {
+            const newTimestamps = [...prevTimestamps, formatTime(timestamp)];
+            if (newTimestamps.length > 10) newTimestamps.shift();
+            return newTimestamps;
+        });
+    } catch (error) {
+        console.error("Error fetching CO2 data:", error);
+    }
+};
+
+const intervalId = setInterval(fetchData, 5000);
+```
+
+<Note>
+The 5-second interval (5000ms) provides a good balance between real-time updates and API request load.
+</Note>
+
+### Data Management
+
+The application maintains a sliding window of the last 10 measurements:
+
+- When new data arrives, it's added to the array
+- If the array exceeds 10 items, the oldest item is removed
+- This keeps the chart focused on recent trends
+
+## Error Handling
+
+### Network Errors
+
+The implementation includes try-catch error handling for API requests:
+
+```javascript
+try {
+    const response = await axios.get("https://co2-api.vercel.app/api/co2");
+    // Process response
+} catch (error) {
+    console.error("Error fetching CO2 data:", error);
+}
+```
+
+<Warning>
+When the API is unreachable, errors are logged to the console but the application continues polling. The dashboard will display "Cargando..." until successful data retrieval.
+</Warning>
+
+### Error Scenarios
+
+<Steps>
+  <Step title="Network Timeout">
+    If the API doesn't respond, Axios will throw a timeout error. The polling continues at the next 5-second interval.
+  </Step>
+  <Step title="Invalid Response">
+    If the API returns unexpected data, the component will fail to destructure the response but won't crash due to the try-catch block.
+  </Step>
+  <Step title="CORS Issues">
+    The API must have proper CORS headers configured to allow requests from your domain.
+  </Step>
+</Steps>
+
+## Customizing the API Endpoint
+
+### Change the Endpoint URL
+
+To use a different API endpoint, modify the URL in `src/components/CO2Dashboard.js`:
+
+<Steps>
+  <Step title="Open the Component">
+    Navigate to `src/components/CO2Dashboard.js`
+  </Step>
+  <Step title="Locate the API Call">
+    Find the axios.get call around line 41:
+    ```javascript
+    const response = await axios.get("https://co2-api.vercel.app/api/co2");
+    ```
+  </Step>
+  <Step title="Update the URL">
+    Replace with your custom endpoint:
+    ```javascript
+    const response = await axios.get("https://your-api.example.com/api/co2");
+    ```
+  </Step>
+  <Step title="Verify Response Format">
+    Ensure your API returns the same JSON structure with `co2` and `timestamp` fields.
+  </Step>
+</Steps>
+
+### Environment Variables (Future Enhancement)
+
+<Tip>
+For better flexibility, consider moving the API URL to an environment variable:
+
+```javascript
+const API_URL = process.env.REACT_APP_CO2_API_URL || "https://co2-api.vercel.app/api/co2";
+const response = await axios.get(API_URL);
+```
+
+Then create a `.env` file:
+```bash
+REACT_APP_CO2_API_URL=https://your-api.example.com/api/co2
+```
+</Tip>
+
+## API Requirements
+
+If you're building your own CO2 API, ensure it meets these requirements:
+
+- **GET endpoint** that returns JSON
+- **Response format**: `{ "co2": number, "timestamp": string }`
+- **CORS enabled** for your domain
+- **Low latency** (< 1 second response time recommended)
+- **Reliable uptime** since the app polls every 5 seconds
+
+## Related Configuration
+
+- [Environment Setup](/configuration/environment) - Development environment and build configuration
+- [Installation](/installation) - Initial project setup

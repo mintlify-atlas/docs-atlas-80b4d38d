@@ -1,0 +1,333 @@
+---
+title: Environment Configuration
+description: Configure your development environment and build settings
+---
+
+## Overview
+
+The CO2 Monitor project is built with Create React App and uses React Scripts for development and production builds. This page covers environment setup, available scripts, and configuration options.
+
+## Project Information
+
+From `package.json`:
+
+```json
+{
+  "name": "sistema-de-co2",
+  "version": "0.1.0",
+  "private": true
+}
+```
+
+<Info>
+This is a private package not intended for npm publication.
+</Info>
+
+## Dependencies
+
+### Core Dependencies
+
+The application uses the following production dependencies:
+
+<CardGroup cols={2}>
+  <Card title="React 18.3.1" icon="react">
+    Core React library for building the UI
+  </Card>
+  <Card title="Axios 1.7.7" icon="arrow-right-arrow-left">
+    HTTP client for API requests
+  </Card>
+  <Card title="Chart.js 4.4.6" icon="chart-line">
+    Powerful charting library for data visualization
+  </Card>
+  <Card title="React-ChartJS-2 5.2.0" icon="chart-area">
+    React wrapper for Chart.js integration
+  </Card>
+</CardGroup>
+
+### Full Dependency List
+
+```json
+{
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.7.7",
+    "chart.js": "^4.4.6",
+    "react": "^18.3.1",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.3.1",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
+  }
+}
+```
+
+## NPM Scripts
+
+The project includes four primary npm scripts for different tasks:
+
+### Development Server
+
+```bash
+npm start
+```
+
+<Steps>
+  <Step title="Starts Development Server">
+    Launches the React development server with hot reloading
+  </Step>
+  <Step title="Opens Browser">
+    Automatically opens http://localhost:3000 in your default browser
+  </Step>
+  <Step title="Watch Mode">
+    Watches for file changes and automatically recompiles
+  </Step>
+</Steps>
+
+<Tip>
+The development server includes helpful error overlays and performance monitoring through React's built-in dev tools.
+</Tip>
+
+### Production Build
+
+```bash
+npm run build
+```
+
+Creates an optimized production build in the `build/` directory:
+
+- Minifies JavaScript and CSS
+- Optimizes images and assets
+- Generates source maps
+- Creates hashed filenames for cache busting
+- Produces a static bundle ready for deployment
+
+<Note>
+The build output is optimized for best performance with code splitting and tree shaking enabled.
+</Note>
+
+### Testing
+
+```bash
+npm test
+```
+
+Launches the test runner in interactive watch mode:
+
+- Runs tests using Jest
+- Includes React Testing Library utilities
+- Watches for changes and re-runs affected tests
+- Provides coverage reporting
+
+### Eject Configuration
+
+```bash
+npm run eject
+```
+
+<Warning>
+**This is a one-way operation. Once you eject, you can't go back!**
+
+Ejecting copies all configuration files and dependencies into your project, giving you full control over:
+- Webpack configuration
+- Babel configuration  
+- ESLint configuration
+- Build scripts
+
+Only eject if you need custom configuration that Create React App doesn't support.
+</Warning>
+
+## React Scripts Configuration
+
+The project uses **React Scripts 5.0.1**, which provides:
+
+- Webpack 5 for bundling
+- Babel for JavaScript transpilation
+- ESLint for code linting
+- Jest for testing
+- PostCSS for CSS processing
+- Development server with hot reloading
+
+### ESLint Configuration
+
+```json
+{
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  }
+}
+```
+
+The project uses the standard Create React App ESLint configuration:
+
+- **react-app**: Core linting rules for React applications
+- **react-app/jest**: Additional rules for Jest testing files
+
+<Info>
+You can extend this configuration by adding custom rules to `package.json` or creating a separate `.eslintrc.json` file.
+</Info>
+
+## Browser Compatibility
+
+The `browserslist` configuration defines which browsers are supported:
+
+### Production Builds
+
+```json
+{
+  "production": [
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
+  ]
+}
+```
+
+<Steps>
+  <Step title=">0.2% Global Usage">
+    Supports browsers used by more than 0.2% of global users
+  </Step>
+  <Step title="Active Browsers">
+    Excludes browsers without official support or updates ("not dead")
+  </Step>
+  <Step title="Opera Mini Excluded">
+    Excludes Opera Mini due to limited JavaScript support
+  </Step>
+</Steps>
+
+### Development Builds
+
+```json
+{
+  "development": [
+    "last 1 chrome version",
+    "last 1 firefox version",
+    "last 1 safari version"
+  ]
+}
+```
+
+<Tip>
+Development builds target only the latest browser versions for faster compilation and debugging features.
+</Tip>
+
+## Environment Variables
+
+Create React App supports environment variables prefixed with `REACT_APP_`:
+
+### Creating Environment Variables
+
+<Steps>
+  <Step title="Create .env File">
+    Create a `.env` file in the project root:
+    ```bash
+    REACT_APP_API_URL=https://co2-api.vercel.app/api/co2
+    REACT_APP_POLL_INTERVAL=5000
+    ```
+  </Step>
+  <Step title="Access in Code">
+    Use variables in your application:
+    ```javascript
+    const apiUrl = process.env.REACT_APP_API_URL;
+    const pollInterval = process.env.REACT_APP_POLL_INTERVAL;
+    ```
+  </Step>
+  <Step title="Restart Development Server">
+    Changes to `.env` require restarting the development server
+  </Step>
+</Steps>
+
+### Environment Files
+
+Create React App supports multiple environment files:
+
+- `.env` - Default environment variables
+- `.env.local` - Local overrides (not committed to git)
+- `.env.development` - Development-specific variables
+- `.env.production` - Production-specific variables
+
+<Warning>
+Never commit `.env.local` to version control. Add it to `.gitignore` to prevent exposing sensitive data.
+</Warning>
+
+## Build Configuration
+
+### Development Mode
+
+When running `npm start`:
+
+- Source maps are fully enabled
+- Code is not minified
+- Hot module replacement is active
+- React runs in development mode with helpful warnings
+- Performance metrics are available via Web Vitals
+
+### Production Mode  
+
+When running `npm run build`:
+
+- Code is minified and optimized
+- Source maps are generated for debugging
+- React runs in production mode (no dev warnings)
+- Output is optimized for performance
+- Bundle size is minimized through tree shaking
+
+## Port Configuration
+
+By default, the development server runs on port 3000. To change this:
+
+### macOS/Linux
+
+```bash
+PORT=3001 npm start
+```
+
+### Windows
+
+```cmd
+set PORT=3001 && npm start
+```
+
+### Permanent Configuration
+
+Add to `.env`:
+
+```bash
+PORT=3001
+```
+
+## Performance Monitoring
+
+The project includes Web Vitals for performance monitoring:
+
+```javascript
+// src/index.js
+import reportWebVitals from './reportWebVitals';
+
+reportWebVitals();
+```
+
+This tracks:
+
+- **CLS**: Cumulative Layout Shift
+- **FID**: First Input Delay  
+- **FCP**: First Contentful Paint
+- **LCP**: Largest Contentful Paint
+- **TTFB**: Time to First Byte
+
+<Info>
+To log metrics to the console, modify `reportWebVitals()` to pass a logging function:
+
+```javascript
+reportWebVitals(console.log);
+```
+</Info>
+
+## Related Configuration
+
+- [API Setup](/configuration/api-setup) - Configure the CO2 API endpoint
+- [Installation](/installation) - Initial project setup and dependencies

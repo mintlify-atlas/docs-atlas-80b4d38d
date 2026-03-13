@@ -1,0 +1,118 @@
+---
+title: Introduction
+description: Monitor CO2 levels in real-time for greenhouse environments with interactive data visualization
+---
+
+<img
+  className="block dark:hidden"
+  src="/images/hero-light.svg"
+  alt="CO2 Monitor Hero Light"
+/>
+<img
+  className="hidden dark:block"
+  src="/images/hero-dark.svg"
+  alt="CO2 Monitor Hero Dark"
+/>
+
+## Welcome to CO2 Monitor
+
+CO2 Monitor is a Progressive Web App (PWA) designed for real-time monitoring of carbon dioxide levels in greenhouse environments. Built with React and Chart.js, it provides interactive visualizations and continuous updates to help you maintain optimal air quality for your crops.
+
+<CardGroup cols={2}>
+  <Card
+    title="Quick Start"
+    icon="rocket"
+    href="/quickstart"
+  >
+    Get up and running in minutes with our step-by-step guide
+  </Card>
+  <Card
+    title="Installation"
+    icon="download"
+    href="/installation"
+  >
+    Install dependencies and configure your environment
+  </Card>
+  <Card
+    title="Components"
+    icon="puzzle-piece"
+    href="/components/dashboard"
+  >
+    Explore the Dashboard, Header, and Chart components
+  </Card>
+  <Card
+    title="API Reference"
+    icon="code"
+    href="/api/co2-endpoint"
+  >
+    Learn about the CO2 data API endpoint
+  </Card>
+</CardGroup>
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Real-Time Monitoring" icon="gauge">
+    Automatic updates every 5 seconds to track CO2 levels continuously
+  </Card>
+  <Card title="Interactive Charts" icon="chart-line">
+    Visualize data with Chart.js and react-chartjs-2 for clear insights
+  </Card>
+  <Card title="Progressive Web App" icon="mobile">
+    Install on mobile devices and use offline with PWA capabilities
+  </Card>
+  <Card title="Responsive Design" icon="display">
+    Works seamlessly on mobile, tablet, and desktop screens
+  </Card>
+</CardGroup>
+
+## How It Works
+
+CO2 Monitor fetches real-time CO2 measurements from an external API endpoint and displays the data in an intuitive dashboard. The application:
+
+1. **Polls the API** every 5 seconds to retrieve the latest CO2 readings
+2. **Displays current levels** in parts per million (ppm) with large, readable text
+3. **Renders a line chart** showing the last 10 measurements for trend analysis
+4. **Updates automatically** without requiring manual refresh
+
+The application is built as a PWA, enabling installation on mobile devices for quick access and offline functionality.
+
+## Technology Stack
+
+<CardGroup cols={3}>
+  <Card title="React" icon="react">
+    Component-based UI framework
+  </Card>
+  <Card title="Chart.js" icon="chart-simple">
+    Interactive chart library
+  </Card>
+  <Card title="Axios" icon="network-wired">
+    HTTP client for API requests
+  </Card>
+</CardGroup>
+
+## Use Cases
+
+- **Greenhouse Management**: Monitor CO2 levels to optimize plant growth conditions
+- **Air Quality Control**: Ensure safe and healthy air in controlled environments
+- **Data Analysis**: Track CO2 trends over time to identify patterns
+- **Remote Monitoring**: Access real-time data from any device with a web browser
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Installation Guide"
+    icon="wrench"
+    href="/installation"
+  >
+    Set up Node.js, install dependencies, and configure your environment
+  </Card>
+  <Card
+    title="Quick Start Tutorial"
+    icon="play"
+    href="/quickstart"
+  >
+    Launch the app and see CO2 monitoring in action
+  </Card>
+</CardGroup>

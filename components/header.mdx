@@ -1,0 +1,191 @@
+---
+title: 'Header Component'
+description: 'Simple header component displaying the application title'
+---
+
+## Overview
+
+The `Header` component provides a simple, styled header for the CO2 monitoring system. It displays the application title "Sistema de Monitoreo de CO2" and serves as the top-level navigation element.
+
+## Component Location
+
+The component is located at `src/components/Header.js`.
+
+## Implementation
+
+The Header component is a functional React component with minimal complexity:
+
+```javascript
+import React from "react";
+import './Header.css';
+
+function Header() {
+    return (
+        <header>
+            <h1 className="titulo">Sistema de Monitoreo de CO2</h1>
+        </header>
+    );
+}
+
+export default Header;
+```
+
+## Component Structure
+
+<Steps>
+  <Step title="Import Dependencies">
+    Imports React and the associated CSS stylesheet
+  </Step>
+  <Step title="Render Header Element">
+    Returns a semantic `<header>` element containing the title
+  </Step>
+  <Step title="Apply Styling">
+    Uses the `titulo` class for consistent typography and layout
+  </Step>
+</Steps>
+
+## Styling
+
+The component uses `Header.css` for styling with responsive design considerations.
+
+### CSS Implementation
+
+```css
+.titulo {
+    font-size: 2.5em;
+    color: #001d1a;
+    margin-bottom: 0px;
+    padding: 0px;
+    font-weight: bold;
+}
+```
+
+### Responsive Design
+
+The header adapts to different screen sizes:
+
+<Tabs>
+  <Tab title="Desktop">
+    ```css
+    .titulo {
+        font-size: 2.5em;
+        color: #001d1a;
+        font-weight: bold;
+    }
+    ```
+    Full-size title at 2.5em for optimal desktop viewing
+  </Tab>
+  <Tab title="Tablet (≤768px)">
+    ```css
+    @media (max-width: 768px) {
+        .titulo {
+            font-size: 1.2em
+        }
+    }
+    ```
+    Reduced to 1.2em for tablet screens
+  </Tab>
+  <Tab title="Mobile (≤480px)">
+    ```css
+    @media (max-width: 480px) {
+        .titulo {
+            font-size: 1.2em
+        }
+    }
+    ```
+    Maintains 1.2em for optimal mobile readability
+  </Tab>
+</Tabs>
+
+## Design Choices
+
+<CardGroup cols={2}>
+  <Card title="Color Scheme" icon="palette">
+    Uses dark teal (#001d1a) to match the application's environmental theme
+  </Card>
+  <Card title="Typography" icon="font">
+    Bold font weight ensures the title stands out as the primary heading
+  </Card>
+  <Card title="Spacing" icon="arrows-up-down">
+    Zero margin and padding for tight integration with the layout
+  </Card>
+  <Card title="Responsiveness" icon="mobile">
+    Adapts font size for smaller screens to prevent overflow
+  </Card>
+</CardGroup>
+
+## Props
+
+This component does not accept any props. It renders a static title.
+
+<Info>
+  To customize the title text, you would need to modify the component directly or add a `title` prop to the component.
+</Info>
+
+## Usage Example
+
+The Header component is used at the top level of the application:
+
+```javascript
+import Header from "./components/Header";
+import CO2Dashboard from "./components/CO2Dashboard";
+
+function App() {
+  return (
+    <div>
+      <Header />
+      <CO2Dashboard />
+    </div>
+  );
+}
+
+export default App;
+```
+
+## Customization Options
+
+### Making the Title Dynamic
+
+To make the header accept a custom title prop:
+
+```javascript
+function Header({ title = "Sistema de Monitoreo de CO2" }) {
+    return (
+        <header>
+            <h1 className="titulo">{title}</h1>
+        </header>
+    );
+}
+```
+
+### Adding Additional Elements
+
+You can extend the header to include navigation or icons:
+
+```javascript
+function Header() {
+    return (
+        <header>
+            <h1 className="titulo">Sistema de Monitoreo de CO2</h1>
+            <nav>
+                {/* Navigation items */}
+            </nav>
+        </header>
+    );
+}
+```
+
+<Warning>
+  When modifying the Header component, ensure you maintain the responsive design by updating the corresponding CSS.
+</Warning>
+
+## Related Components
+
+<CardGroup cols={2}>
+  <Card title="CO2Dashboard" icon="gauge" href="/components/dashboard">
+    Main dashboard component for displaying CO2 data
+  </Card>
+  <Card title="Getting Started" icon="rocket" href="/quickstart">
+    Learn how to set up and run the application
+  </Card>
+</CardGroup>

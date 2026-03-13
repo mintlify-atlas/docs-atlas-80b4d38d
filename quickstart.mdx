@@ -1,80 +1,209 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: 'Quick Start'
+description: 'Get your CO2 Monitor up and running in minutes'
 ---
 
-## Get started in three steps
+## Get Started in 3 Steps
 
-Get your documentation site running locally and make your first customization.
+<Steps>
+  <Step title="Install Dependencies">
+    ```bash
+    npm install
+    ```
+  </Step>
 
-### Step 1: Set up your local environment
-
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+  <Step title="Start Development Server">
+    ```bash
+    npm start
+    ```
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+    The application will automatically open at [http://localhost:3000](http://localhost:3000)
+  </Step>
 
-### Step 2: Deploy your changes
+  <Step title="View Real-Time CO2 Data">
+    Once the app loads, you'll immediately see:
+    - Current CO2 levels displayed in ppm (parts per million)
+    - A live updating line chart showing the last 10 measurements
+    - Data refreshing every 5 seconds
+  </Step>
+</Steps>
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+## What You'll See
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
-
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
-
-## Next steps
-
-Now that you have your docs running, explore these key features:
+When you first launch the CO2 Monitor, the application displays:
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Current Reading" icon="gauge-high">
+    Large display showing the latest CO2 measurement in ppm
+  </Card>
+  <Card title="Historical Chart" icon="chart-line">
+    Interactive line graph tracking the last 10 data points
+  </Card>
 </CardGroup>
 
+<Info>
+  The app fetches data from the CO2 API at `https://co2-api.vercel.app/api/co2` every 5 seconds. Make sure you have an active internet connection.
+</Info>
+
+## Understanding the Dashboard
+
+The main dashboard component (`src/components/CO2Dashboard.js`) provides real-time monitoring:
+
+```javascript src/components/CO2Dashboard.js
+useEffect(() => {
+    const fetchData = async () => {
+        try {
+            const response = await axios.get("https://co2-api.vercel.app/api/co2");
+            const { co2, timestamp } = response.data;
+
+            setLatestCO2(co2);
+            setCo2Data((prevData) => {
+                const newData = [...prevData, co2];
+                if (newData.length > 10) newData.shift();
+                return newData;
+            });
+
+            setTimestamps((prevTimestamps) => {
+                const newTimestamps = [...prevTimestamps, formatTime(timestamp)];
+                if (newTimestamps.length > 10) newTimestamps.shift();
+                return newTimestamps;
+            });
+        } catch (error) {
+            console.error("Error fetching CO2 data:", error);
+        }
+    };
+
+    const intervalId = setInterval(fetchData, 5000);
+    return () => clearInterval(intervalId);
+}, []);
+```
+
+### Key Features
+
+The dashboard automatically:
+- **Fetches data** from the API every 5 seconds (`src/components/CO2Dashboard.js:63`)
+- **Maintains history** of the last 10 readings (`src/components/CO2Dashboard.js:49`)
+- **Updates the chart** in real-time with formatted timestamps
+- **Handles errors** gracefully if the API is unavailable
+
+## Application Structure
+
+The CO2 Monitor follows a simple React component hierarchy:
+
+```plaintext
+App (src/App.js)
+├── Header (src/components/Header.js)
+│   └── Displays "Sistema de Monitoreo de CO2"
+└── CO2Dashboard (src/components/CO2Dashboard.js)
+    ├── Real-time CO2 reading
+    └── Interactive Chart.js line graph
+```
+
+### Main Components
+
+<Accordion title="App Component (src/App.js)">
+  The root component that renders the header and dashboard:
+
+  ```javascript src/App.js
+  function App() {
+    return (
+      <div>
+        <Header />
+        <CO2Dashboard />
+      </div>
+    );
+  }
+  ```
+</Accordion>
+
+<Accordion title="CO2Dashboard Component (src/components/CO2Dashboard.js)">
+  The core component that:
+  - Manages CO2 data state using React hooks
+  - Fetches data from the API at 5-second intervals
+  - Renders the Chart.js line graph
+  - Formats timestamps for display
+</Accordion>
+
+<Accordion title="Header Component (src/components/Header.js)">
+  A simple header displaying the application title:
+
+  ```javascript src/components/Header.js
+  function Header() {
+      return (
+          <header>
+              <h1 className="titulo">Sistema de Monitoreo de CO2</h1>
+          </header>
+      );
+  }
+  ```
+</Accordion>
+
+## First Meaningful Action
+
+Your first interaction with the CO2 Monitor is passive observation. Watch as:
+
+1. **Initial data loads** - The display shows "Cargando..." while fetching the first reading (`src/components/CO2Dashboard.js:83`)
+2. **Current reading appears** - A large number displays the latest CO2 level in ppm
+3. **Chart populates** - The line graph begins plotting data points as they arrive
+4. **Automatic updates** - Every 5 seconds, new data appears without any user action
+
+<Tip>
+  Open your browser's developer console (F12) to see real-time logs of incoming data: `"Nuevo dato recibido:"` followed by timestamp and CO2 value (`src/components/CO2Dashboard.js:44`).
+</Tip>
+
+## Chart Configuration
+
+The application uses Chart.js with the following registered components (`src/components/CO2Dashboard.js:7`):
+
+```javascript
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+```
+
+The line chart is configured with:
+- **Responsive design** that adapts to screen size
+- **Custom tooltips** showing CO2 values in ppm
+- **Labeled axes** for time (x-axis) and CO2 levels (y-axis)
+- **Color scheme** using teal (#4BC0C0) for visibility
+
+## Building for Production
+
+When you're ready to deploy, create an optimized production build:
+
+<CodeGroup>
+  ```bash npm
+  npm run build
+  ```
+
+  ```bash yarn
+  yarn build
+  ```
+
+  ```bash pnpm
+  pnpm run build
+  ```
+</CodeGroup>
+
+This generates an optimized bundle in the `build/` directory ready for deployment.
+
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  The production build is minified and optimized for best performance. All filenames include content hashes for efficient caching.
 </Note>
+
+## Next Steps
+
+Now that you have the CO2 Monitor running, explore these topics:
+
+<CardGroup cols={2}>
+  <Card title="Real-Time Monitoring" icon="gauge" href="/features/real-time-monitoring">
+    Learn how the 5-second polling works
+  </Card>
+  <Card title="Dashboard Component" icon="layer-group" href="/components/dashboard">
+    Explore the main dashboard component
+  </Card>
+  <Card title="API Integration" icon="plug" href="/api/co2-endpoint">
+    Understand the CO2 API endpoint
+  </Card>
+  <Card title="Data Visualization" icon="chart-line" href="/features/data-visualization">
+    See how Chart.js creates the graphs
+  </Card>
+</CardGroup>

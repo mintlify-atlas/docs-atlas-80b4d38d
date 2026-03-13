@@ -1,0 +1,396 @@
+---
+title: 'Chart Configuration'
+description: 'Chart.js setup and configuration for CO2 data visualization'
+---
+
+## Overview
+
+The CO2 Monitor uses Chart.js through the `react-chartjs-2` wrapper to create interactive line charts for visualizing CO2 levels over time. This page covers the Chart.js registration, data structure, and configuration options.
+
+## Chart.js Registration
+
+Before using Chart.js components, you must register the necessary components from Chart.js.
+
+### Required Imports
+
+```javascript
+import { Line } from "react-chartjs-2";
+import { 
+  Chart as ChartJS, 
+  CategoryScale, 
+  LinearScale, 
+  PointElement, 
+  LineElement, 
+  Title, 
+  Tooltip, 
+  Legend 
+} from 'chart.js';
+```
+
+### Registration
+
+```javascript
+ChartJS.register(
+  CategoryScale, 
+  LinearScale, 
+  PointElement, 
+  LineElement, 
+  Title, 
+  Tooltip, 
+  Legend
+);
+```
+
+<Info>
+  This registration must occur before any Chart components are rendered. It's placed at the top level of `CO2Dashboard.js`.
+</Info>
+
+### Component Breakdown
+
+<CardGroup cols={3}>
+  <Card title="CategoryScale" icon="table">
+    Enables categorical X-axis for timestamps
+  </Card>
+  <Card title="LinearScale" icon="chart-line">
+    Provides linear Y-axis for CO2 values
+  </Card>
+  <Card title="PointElement" icon="circle">
+    Renders data points on the chart
+  </Card>
+  <Card title="LineElement" icon="wave-square">
+    Draws lines connecting data points
+  </Card>
+  <Card title="Title" icon="heading">
+    Displays axis titles
+  </Card>
+  <Card title="Tooltip" icon="message">
+    Shows data on hover
+  </Card>
+</CardGroup>
+
+## Data Structure
+
+The chart receives data in a specific format compatible with Chart.js.
+
+### Data Object
+
+```javascript
+const data = {
+    labels: timestamps,
+    datasets: [
+        {
+            label: "Niveles de CO2 (ppm)",
+            data: co2Data,
+            fill: false,
+            backgroundColor: "rgba(75,192,192,1)",
+            borderColor: "rgba(75,192,192,0.2)",
+        },
+    ],
+};
+```
+
+### Data Properties
+
+<Tabs>
+  <Tab title="labels">
+    **Array of timestamps** - X-axis labels showing time
+    
+    ```javascript
+    labels: ["10:00:00", "10:00:05", "10:00:10", ...]
+    ```
+    
+    These are formatted timestamps from the `formatTime` function, showing the last 10 measurements.
+  </Tab>
+  <Tab title="datasets">
+    **Array of dataset objects** - Contains the actual CO2 measurements
+    
+    ```javascript
+    datasets: [{
+        label: "Niveles de CO2 (ppm)",
+        data: [400, 405, 410, 408, ...],
+        fill: false,
+        backgroundColor: "rgba(75,192,192,1)",
+        borderColor: "rgba(75,192,192,0.2)"
+    }]
+    ```
+    
+    - **label**: Legend text
+    - **data**: Array of CO2 values
+    - **fill**: Whether to fill area under the line
+    - **backgroundColor**: Point color
+    - **borderColor**: Line color
+  </Tab>
+</Tabs>
+
+## Chart Options
+
+The Line component receives an `options` object for customization.
+
+### Complete Configuration
+
+```javascript
+<Line data={data} options={{
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+        x: { 
+            ticks: { color: "#555" }, 
+            title: { display: true, text: 'Tiempo' } 
+        },
+        y: { 
+            ticks: { color: "#555" }, 
+            title: { display: true, text: 'CO2 (ppm)' } 
+        },
+    },
+    plugins: {
+        tooltip: {
+            callbacks: {
+                label: (context) => `${context.parsed.y} ppm`
+            }
+        }
+    }
+}} />
+```
+
+### Options Breakdown
+
+<Steps>
+  <Step title="Responsive Settings">
+    ```javascript
+    responsive: true,
+    maintainAspectRatio: false
+    ```
+    Ensures the chart fills its container and adapts to screen size
+  </Step>
+  <Step title="X-Axis Configuration">
+    ```javascript
+    x: { 
+        ticks: { color: "#555" }, 
+        title: { display: true, text: 'Tiempo' } 
+    }
+    ```
+    Configures the time axis with gray ticks and "Tiempo" label
+  </Step>
+  <Step title="Y-Axis Configuration">
+    ```javascript
+    y: { 
+        ticks: { color: "#555" }, 
+        title: { display: true, text: 'CO2 (ppm)' } 
+    }
+    ```
+    Configures the CO2 axis with gray ticks and "CO2 (ppm)" label
+  </Step>
+  <Step title="Tooltip Customization">
+    ```javascript
+    tooltip: {
+        callbacks: {
+            label: (context) => `${context.parsed.y} ppm`
+        }
+    }
+    ```
+    Formats tooltip to display values with "ppm" suffix
+  </Step>
+</Steps>
+
+## Chart Container
+
+The chart is wrapped in a container div for proper sizing:
+
+```javascript
+<div className="chart-container">
+    <Line data={data} options={{...}} />
+</div>
+```
+
+### Container CSS
+
+```css
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    max-width: 1000px;
+    margin: 20px 0;
+}
+```
+
+<Note>
+  The `maintainAspectRatio: false` option is crucial when using a fixed-height container, allowing the chart to fill the entire height.
+</Note>
+
+## Customization Options
+
+### Changing Colors
+
+Modify the color scheme by updating the dataset colors:
+
+```javascript
+{
+    backgroundColor: "rgba(255,99,132,1)",  // Red points
+    borderColor: "rgba(255,99,132,0.5)",    // Semi-transparent red line
+}
+```
+
+### Adding Fill Under Line
+
+Enable area fill beneath the line:
+
+```javascript
+{
+    fill: true,
+    backgroundColor: "rgba(75,192,192,0.2)",  // Semi-transparent fill
+}
+```
+
+### Adjusting Point Styles
+
+Customize point appearance:
+
+```javascript
+{
+    pointRadius: 5,                    // Larger points
+    pointHoverRadius: 7,               // Even larger on hover
+    pointBackgroundColor: "#00796b",   // Custom point color
+    borderWidth: 2,                    // Line thickness
+}
+```
+
+### Adding Grid Lines
+
+Customize grid appearance:
+
+```javascript
+scales: {
+    x: { 
+        grid: {
+            display: true,
+            color: "rgba(0,0,0,0.1)"
+        }
+    },
+    y: { 
+        grid: {
+            display: true,
+            color: "rgba(0,0,0,0.1)"
+        }
+    }
+}
+```
+
+## Animation Configuration
+
+Control chart animations:
+
+```javascript
+options={{
+    animation: {
+        duration: 750,
+        easing: 'easeInOutQuad'
+    }
+}}
+```
+
+<Warning>
+  Heavy animations may impact performance when data updates frequently (every 5 seconds in this application).
+</Warning>
+
+## Responsive Behavior
+
+The chart adapts to different screen sizes through CSS media queries:
+
+<Tabs>
+  <Tab title="Desktop">
+    ```css
+    .chart-container {
+        height: 400px;
+        max-width: 1000px;
+    }
+    ```
+  </Tab>
+  <Tab title="Tablet (≤768px)">
+    ```css
+    @media (max-width: 768px) {
+        .chart-container {
+            height: 300px;
+            width: auto;
+        }
+    }
+    ```
+  </Tab>
+  <Tab title="Mobile (≤480px)">
+    ```css
+    @media (max-width: 480px) {
+        .chart-container {
+            height: 250px;
+            width: auto;
+        }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Advanced Features
+
+### Multiple Datasets
+
+Display multiple CO2 sensors:
+
+```javascript
+datasets: [
+    {
+        label: "Sensor 1 - CO2 (ppm)",
+        data: co2Data1,
+        borderColor: "rgba(75,192,192,0.2)",
+    },
+    {
+        label: "Sensor 2 - CO2 (ppm)",
+        data: co2Data2,
+        borderColor: "rgba(255,99,132,0.2)",
+    }
+]
+```
+
+### Custom Tooltip Content
+
+Enhance tooltip information:
+
+```javascript
+tooltip: {
+    callbacks: {
+        title: (context) => {
+            return `Time: ${context[0].label}`;
+        },
+        label: (context) => {
+            const value = context.parsed.y;
+            const status = value > 1000 ? 'High' : 'Normal';
+            return `${value} ppm (${status})`;
+        }
+    }
+}
+```
+
+## Performance Optimization
+
+<Tip>
+  The dashboard limits historical data to 10 points to maintain optimal chart performance during real-time updates.
+</Tip>
+
+### Data Point Limiting
+
+```javascript
+setCo2Data((prevData) => {
+    const newData = [...prevData, co2];
+    if (newData.length > 10) newData.shift();  // Keep only last 10 points
+    return newData;
+});
+```
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="CO2Dashboard Component" icon="gauge" href="/components/dashboard">
+    Learn how the chart integrates with the dashboard
+  </Card>
+  <Card title="Chart.js Docs" icon="book" href="https://www.chartjs.org/docs/latest/">
+    Official Chart.js documentation for advanced features
+  </Card>
+</CardGroup>

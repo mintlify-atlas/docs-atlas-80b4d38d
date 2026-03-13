@@ -1,0 +1,163 @@
+---
+title: 'CO2 API Endpoint'
+description: 'Real-time CO2 measurement API endpoint'
+icon: 'cloud'
+---
+
+## Overview
+
+The CO2 API provides real-time carbon dioxide measurements in parts per million (ppm). The API is publicly accessible and does not require authentication.
+
+## Endpoint Details
+
+<ParamField path="url" type="string" required>
+  https://co2-api.vercel.app/api/co2
+</ParamField>
+
+<ParamField path="method" type="string" required>
+  GET
+</ParamField>
+
+## Authentication
+
+<Note>
+  No authentication is required. The endpoint is publicly accessible.
+</Note>
+
+## Request Parameters
+
+This endpoint does not accept any request parameters. Simply make a GET request to retrieve the latest CO2 measurement.
+
+## Response Format
+
+The API returns a JSON object with the current CO2 level and timestamp:
+
+<ResponseField name="co2" type="number" required>
+  The CO2 concentration in parts per million (ppm). This is a numeric value representing the current measurement.
+</ResponseField>
+
+<ResponseField name="timestamp" type="string" required>
+  The timestamp when the measurement was taken, formatted as `"DD/MM/YY, HH:MM:SS a.m./p.m."` (e.g., `"14/01/25, 10:30:00 a.m."`).
+</ResponseField>
+
+### Example Response
+
+```json
+{
+  "co2": 412,
+  "timestamp": "14/01/25, 10:30:00 a.m."
+}
+```
+
+## Error Handling
+
+When making requests to the API, implement proper error handling to manage network issues or API failures:
+
+```javascript
+try {
+  const response = await axios.get("https://co2-api.vercel.app/api/co2");
+  const { co2, timestamp } = response.data;
+  console.log("New data received:", { timestamp, co2 });
+} catch (error) {
+  console.error("Error fetching CO2 data:", error);
+}
+```
+
+<Warning>
+  Always wrap API calls in try-catch blocks to handle potential network failures or API downtime gracefully.
+</Warning>
+
+## Usage Examples
+
+<CodeGroup>
+
+```bash cURL
+curl https://co2-api.vercel.app/api/co2
+```
+
+```javascript Axios
+import axios from "axios";
+
+const fetchCO2Data = async () => {
+  try {
+    const response = await axios.get("https://co2-api.vercel.app/api/co2");
+    const { co2, timestamp } = response.data;
+    console.log(`CO2 Level: ${co2} ppm at ${timestamp}`);
+    return { co2, timestamp };
+  } catch (error) {
+    console.error("Error fetching CO2 data:", error);
+    throw error;
+  }
+};
+```
+
+```javascript Fetch API
+const fetchCO2Data = async () => {
+  try {
+    const response = await fetch("https://co2-api.vercel.app/api/co2");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const { co2, timestamp } = await response.json();
+    console.log(`CO2 Level: ${co2} ppm at ${timestamp}`);
+    return { co2, timestamp };
+  } catch (error) {
+    console.error("Error fetching CO2 data:", error);
+    throw error;
+  }
+};
+```
+
+</CodeGroup>
+
+## Real-Time Polling
+
+The CO2 Dashboard application polls this endpoint every 5 seconds to maintain real-time data:
+
+```javascript
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const response = await axios.get("https://co2-api.vercel.app/api/co2");
+      const { co2, timestamp } = response.data;
+      
+      // Update state with new data
+      setLatestCO2(co2);
+      setCo2Data((prevData) => {
+        const newData = [...prevData, co2];
+        if (newData.length > 10) newData.shift();
+        return newData;
+      });
+      
+      setTimestamps((prevTimestamps) => {
+        const newTimestamps = [...prevTimestamps, formatTime(timestamp)];
+        if (newTimestamps.length > 10) newTimestamps.shift();
+        return newTimestamps;
+      });
+    } catch (error) {
+      console.error("Error fetching CO2 data:", error);
+    }
+  };
+
+  const intervalId = setInterval(fetchData, 5000);
+  return () => clearInterval(intervalId);
+}, []);
+```
+
+<Note>
+  The application maintains a rolling window of the last 10 measurements for chart display.
+</Note>
+
+## Response Codes
+
+| Status Code | Description |
+|------------|-------------|
+| 200 | Successful request with CO2 data |
+| 500 | Internal server error |
+| 503 | Service temporarily unavailable |
+
+## Rate Limiting
+
+<Note>
+  While there are no explicit rate limits documented, it's recommended to poll the API at reasonable intervals (e.g., 5 seconds) to avoid overwhelming the service.
+</Note>

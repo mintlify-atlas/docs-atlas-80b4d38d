@@ -1,0 +1,310 @@
+---
+title: 'Data Format'
+description: 'Understanding CO2 data structures and formatting'
+icon: 'table'
+---
+
+## Overview
+
+This page documents the data structures and formats used throughout the CO2 Monitor application, including API response formats, timestamp parsing, and chart data structures.
+
+## API Response Structure
+
+The CO2 API returns a simple JSON object with two fields:
+
+<ResponseField name="co2" type="number">
+  The CO2 concentration measured in parts per million (ppm). This is a numeric value without units in the response.
+  
+  **Example**: `412`, `450`, `380`
+</ResponseField>
+
+<ResponseField name="timestamp" type="string">
+  A formatted timestamp string indicating when the measurement was taken.
+  
+  **Format**: `"DD/MM/YY, HH:MM:SS a.m./p.m."`
+  
+  **Example**: `"14/01/25, 10:30:00 a.m."`, `"14/01/25, 03:45:00 p.m."`
+</ResponseField>
+
+### Complete Response Example
+
+```json
+{
+  "co2": 412,
+  "timestamp": "14/01/25, 10:30:00 a.m."
+}
+```
+
+## Timestamp Format
+
+### API Timestamp Format
+
+The API returns timestamps in a custom format:
+
+```
+DD/MM/YY, HH:MM:SS a.m./p.m.
+```
+
+**Components**:
+- `DD`: Day (01-31)
+- `MM`: Month (01-12)
+- `YY`: Year (two digits, e.g., 25 for 2025)
+- `HH`: Hour (12-hour format, 01-12)
+- `MM`: Minutes (00-59)
+- `SS`: Seconds (00-59)
+- `a.m./p.m.`: Period indicator
+
+### Timestamp Parsing
+
+The application parses these timestamps into 24-hour format for display using a custom `formatTime` function:
+
+```javascript
+const formatTime = (timestamp) => {
+  const [datePart, timePartWithPeriod] = timestamp.split(", ");
+  const [day, month, year] = datePart.split("/");
+  const [timePart, period] = timePartWithPeriod.split(" ");
+  let [hours, minutes] = timePart.split(":");
+  
+  // Convert to 24-hour format
+  if (period.toLowerCase() === "p.m." && hours !== "12") {
+    hours = parseInt(hours) + 12;
+  } else if (period.toLowerCase() === "a.m." && hours === "12") {
+    hours = "00";
+  }
+  
+  // Construct ISO date string
+  const isoDate = `20${year}-${month}-${day}T${hours}:${minutes}:00`;
+  const date = new Date(isoDate);
+  
+  if (isNaN(date)) {
+    console.error("Fecha no válida:", timestamp);
+    return "Invalid Date";
+  }
+  
+  // Return formatted time in 24-hour format
+  return date.toLocaleTimeString('es-MX', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+};
+```
+
+<Expandable title="Example Timestamp Conversions">
+
+| API Timestamp | Parsed Display Format |
+|---------------|----------------------|
+| `14/01/25, 10:30:00 a.m.` | `10:30:00` |
+| `14/01/25, 03:45:00 p.m.` | `15:45:00` |
+| `14/01/25, 12:00:00 p.m.` | `12:00:00` |
+| `14/01/25, 12:00:00 a.m.` | `00:00:00` |
+
+</Expandable>
+
+<Warning>
+  The `formatTime` function assumes the year prefix `20` (e.g., `25` becomes `2025`). This will work correctly until the year 2100.
+</Warning>
+
+## CO2 Value Format
+
+### Numeric Format
+
+CO2 values are returned as plain numbers representing parts per million (ppm):
+
+```javascript
+const { co2, timestamp } = response.data;
+// co2 is a number, e.g., 412
+```
+
+### Display Format
+
+In the UI, CO2 values are displayed with the "ppm" unit:
+
+```jsx
+<h1>{latestCO2 ? `${latestCO2} ppm` : "Cargando..."}</h1>
+```
+
+**Example Output**: `412 ppm`
+
+## Chart Data Structure
+
+The application maintains separate arrays for CO2 values and timestamps for chart rendering:
+
+### State Management
+
+```javascript
+const [co2Data, setCo2Data] = useState([]);
+const [timestamps, setTimestamps] = useState([]);
+const [latestCO2, setLatestCO2] = useState(null);
+```
+
+### Data Array Structure
+
+Both arrays maintain a rolling window of the last 10 measurements:
+
+```javascript
+// Update CO2 data array
+setCo2Data((prevData) => {
+  const newData = [...prevData, co2];
+  if (newData.length > 10) newData.shift(); // Keep only last 10
+  return newData;
+});
+
+// Update timestamps array
+setTimestamps((prevTimestamps) => {
+  const newTimestamps = [...prevTimestamps, formatTime(timestamp)];
+  if (newTimestamps.length > 10) newTimestamps.shift(); // Keep only last 10
+  return newTimestamps;
+});
+```
+
+<Note>
+  The application uses a FIFO (First In, First Out) approach, removing the oldest data point when the array exceeds 10 elements.
+</Note>
+
+### Chart.js Data Format
+
+The data is structured for Chart.js Line component:
+
+```javascript
+const data = {
+  labels: timestamps, // Array of formatted time strings
+  datasets: [
+    {
+      label: "Niveles de CO2 (ppm)",
+      data: co2Data, // Array of CO2 numeric values
+      fill: false,
+      backgroundColor: "rgba(75,192,192,1)",
+      borderColor: "rgba(75,192,192,0.2)",
+    },
+  ],
+};
+```
+
+### Example Data Arrays
+
+```javascript
+// timestamps array
+[
+  "10:25:00",
+  "10:25:05",
+  "10:25:10",
+  "10:25:15",
+  "10:25:20",
+  "10:25:25",
+  "10:25:30",
+  "10:25:35",
+  "10:25:40",
+  "10:25:45"
+]
+
+// co2Data array
+[
+  410,
+  412,
+  415,
+  413,
+  411,
+  414,
+  416,
+  412,
+  410,
+  413
+]
+```
+
+## Data Flow Summary
+
+<CardGroup cols={2}>
+
+<Card title="Step 1: API Request" icon="cloud">
+  Every 5 seconds, fetch data from `https://co2-api.vercel.app/api/co2`
+</Card>
+
+<Card title="Step 2: Response Parsing" icon="brackets-curly">
+  Destructure `{ co2, timestamp }` from response.data
+</Card>
+
+<Card title="Step 3: Timestamp Formatting" icon="clock">
+  Convert API timestamp from 12-hour to 24-hour format using `formatTime()`
+</Card>
+
+<Card title="Step 4: State Update" icon="database">
+  Update arrays with new data, maintaining rolling window of 10 values
+</Card>
+
+</CardGroup>
+
+## Complete Data Handling Example
+
+Here's the complete flow from API call to chart display:
+
+```javascript
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+
+function CO2Dashboard() {
+  const [co2Data, setCo2Data] = useState([]);
+  const [timestamps, setTimestamps] = useState([]);
+  const [latestCO2, setLatestCO2] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // 1. Fetch data from API
+        const response = await axios.get("https://co2-api.vercel.app/api/co2");
+        const { co2, timestamp } = response.data;
+
+        console.log("Nuevo dato recibido:", { timestamp, co2 });
+
+        // 2. Update latest CO2 value
+        setLatestCO2(co2);
+        
+        // 3. Add to CO2 data array (keep last 10)
+        setCo2Data((prevData) => {
+          const newData = [...prevData, co2];
+          if (newData.length > 10) newData.shift();
+          return newData;
+        });
+
+        // 4. Format timestamp and add to array (keep last 10)
+        setTimestamps((prevTimestamps) => {
+          const newTimestamps = [...prevTimestamps, formatTime(timestamp)];
+          if (newTimestamps.length > 10) newTimestamps.shift();
+          return newTimestamps;
+        });
+      } catch (error) {
+        console.error("Error fetching CO2 data:", error);
+      }
+    };
+
+    // 5. Poll every 5 seconds
+    const intervalId = setInterval(fetchData, 5000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  // 6. Structure data for Chart.js
+  const data = {
+    labels: timestamps,
+    datasets: [{
+      label: "Niveles de CO2 (ppm)",
+      data: co2Data,
+      fill: false,
+      backgroundColor: "rgba(75,192,192,1)",
+      borderColor: "rgba(75,192,192,0.2)",
+    }],
+  };
+
+  return (
+    <div className="dashboard">
+      <h1>{latestCO2 ? `${latestCO2} ppm` : "Cargando..."}</h1>
+      {/* Chart component uses 'data' structure */}
+    </div>
+  );
+}
+```
+
+<Note>
+  All data transformations happen in React state update functions, ensuring immutability and proper re-rendering.
+</Note>

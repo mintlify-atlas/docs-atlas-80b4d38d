@@ -1,0 +1,162 @@
+---
+title: 'Installation'
+description: 'Step-by-step guide to install and set up the CO2 Monitor application'
+---
+
+## Prerequisites
+
+Before installing CO2 Monitor, ensure you have the following installed on your system:
+
+<CardGroup cols={2}>
+  <Card title="Node.js" icon="node-js">
+    Version 14.0.0 or higher recommended
+  </Card>
+  <Card title="Package Manager" icon="box">
+    npm, yarn, or pnpm
+  </Card>
+</CardGroup>
+
+<Note>
+  The application is built with React 18.3.1 and uses react-scripts 5.0.1, which requires Node.js 14 or higher.
+</Note>
+
+## Installation Steps
+
+<Steps>
+  <Step title="Clone the Repository">
+    Clone the CO2 Monitor repository to your local machine:
+
+    ```bash
+    git clone https://github.com/OsmelMdz/sistema-de-co2.git
+    cd sistema-de-co2
+    ```
+  </Step>
+
+  <Step title="Install Dependencies">
+    Install all required dependencies using your preferred package manager:
+
+    <CodeGroup>
+      ```bash npm
+      npm install
+      ```
+
+      ```bash yarn
+      yarn install
+      ```
+
+      ```bash pnpm
+      pnpm install
+      ```
+    </CodeGroup>
+
+    This will install all dependencies including:
+    - **React** (18.3.1) - UI framework
+    - **Chart.js** (4.4.6) - Data visualization
+    - **react-chartjs-2** (5.2.0) - React wrapper for Chart.js
+    - **axios** (1.7.7) - HTTP client for API requests
+  </Step>
+
+  <Step title="Verify Installation">
+    Verify that all dependencies were installed correctly:
+
+    <CodeGroup>
+      ```bash npm
+      npm list --depth=0
+      ```
+
+      ```bash yarn
+      yarn list --depth=0
+      ```
+
+      ```bash pnpm
+      pnpm list --depth=0
+      ```
+    </CodeGroup>
+
+    You should see all the packages listed in `package.json` without any errors.
+  </Step>
+</Steps>
+
+## Available Scripts
+
+After installation, you have access to the following npm scripts defined in `package.json`:
+
+<CodeGroup>
+  ```bash Start Development Server
+  npm start
+  ```
+
+  ```bash Build for Production
+  npm run build
+  ```
+
+  ```bash Run Tests
+  npm test
+  ```
+
+  ```bash Eject Configuration
+  npm run eject
+  ```
+</CodeGroup>
+
+<Warning>
+  The `eject` command is a one-way operation. Once you eject, you can't go back. Only use this if you need full control over the webpack configuration.
+</Warning>
+
+## Verifying Your Installation
+
+To ensure everything is set up correctly, start the development server:
+
+```bash
+npm start
+```
+
+The application should:
+1. Compile successfully without errors
+2. Automatically open in your browser at `http://localhost:3000`
+3. Display the "Sistema de Monitoreo de CO2" header
+4. Begin fetching and displaying CO2 data from the API
+
+<Info>
+  If the development server doesn't open automatically, manually navigate to [http://localhost:3000](http://localhost:3000) in your browser.
+</Info>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Port 3000 is already in use">
+    If port 3000 is already occupied, React will prompt you to use a different port. Press `Y` to accept, or manually specify a port:
+
+    ```bash
+    PORT=3001 npm start
+    ```
+  </Accordion>
+
+  <Accordion title="Module not found errors">
+    If you encounter module not found errors, try clearing the npm cache and reinstalling:
+
+    ```bash
+    rm -rf node_modules package-lock.json
+    npm install
+    ```
+  </Accordion>
+
+  <Accordion title="Chart.js registration errors">
+    The application properly registers Chart.js components in `src/components/CO2Dashboard.js:7`. If you see registration errors, ensure you haven't modified the ChartJS.register call:
+
+    ```javascript
+    ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Get your CO2 Monitor running in minutes
+  </Card>
+  <Card title="Components" icon="puzzle-piece" href="/components/dashboard">
+    Explore the Dashboard component
+  </Card>
+</CardGroup>

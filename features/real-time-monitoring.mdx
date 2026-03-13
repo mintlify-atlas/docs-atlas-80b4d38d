@@ -1,0 +1,219 @@
+---
+title: 'Real-Time Monitoring'
+description: 'Learn how the CO2 Monitor continuously tracks CO2 levels with automatic 5-second polling'
+icon: 'chart-line'
+---
+
+## Overview
+
+The CO2 Monitor implements real-time data monitoring using a polling-based approach that fetches new CO2 readings every 5 seconds. This provides near-instantaneous updates while maintaining efficient resource usage.
+
+## How It Works
+
+The real-time monitoring system is built on three core React mechanisms:
+
+<Steps>
+  <Step title="State Management">
+    Three state variables track the monitoring data:
+    - `co2Data`: Array of CO2 readings (ppm)
+    - `timestamps`: Corresponding time labels
+    - `latestCO2`: Current CO2 level for display
+  </Step>
+  
+  <Step title="Automatic Polling">
+    A `setInterval` function fetches fresh data every 5 seconds from the API
+  </Step>
+  
+  <Step title="Data Updates">
+    New readings are appended to state arrays, maintaining a rolling window of the last 10 data points
+  </Step>
+</Steps>
+
+## Implementation Details
+
+### State Initialization
+
+The component uses React hooks to manage real-time data:
+
+```jsx src/components/CO2Dashboard.js
+const [co2Data, setCo2Data] = useState([]);
+const [timestamps, setTimestamps] = useState([]);
+const [latestCO2, setLatestCO2] = useState(null);
+```
+
+These three state variables work together to:
+- Store historical CO2 readings for chart visualization
+- Track corresponding timestamps for the x-axis
+- Display the most recent CO2 value prominently
+
+### The Polling Mechanism
+
+The real-time updates are powered by a `useEffect` hook with `setInterval`:
+
+```jsx src/components/CO2Dashboard.js
+useEffect(() => {
+    const fetchData = async () => {
+        try {
+            const response = await axios.get("https://co2-api.vercel.app/api/co2");
+            const { co2, timestamp } = response.data;
+
+            console.log("Nuevo dato recibido:", { timestamp, co2 });
+
+            setLatestCO2(co2);
+            setCo2Data((prevData) => {
+                const newData = [...prevData, co2];
+                if (newData.length > 10) newData.shift();
+                return newData;
+            });
+
+            setTimestamps((prevTimestamps) => {
+                const newTimestamps = [...prevTimestamps, formatTime(timestamp)];
+                if (newTimestamps.length > 10) newTimestamps.shift();
+                return newTimestamps;
+            });
+        } catch (error) {
+            console.error("Error fetching CO2 data:", error);
+        }
+    };
+
+    const intervalId = setInterval(fetchData, 5000);
+    return () => clearInterval(intervalId);
+}, []);
+```
+
+<Note>
+  The `useEffect` dependency array is empty `[]`, meaning the interval is set up once when the component mounts and cleaned up when it unmounts.
+</Note>
+
+### Key Features
+
+<CardGroup cols={2}>
+  <Card title="5-Second Intervals" icon="clock">
+    New data is fetched every 5000 milliseconds, providing smooth real-time updates without overwhelming the API
+  </Card>
+  
+  <Card title="Automatic Cleanup" icon="broom">
+    The cleanup function `clearInterval(intervalId)` prevents memory leaks when the component unmounts
+  </Card>
+  
+  <Card title="Rolling Window" icon="window-maximize">
+    Only the last 10 data points are kept, maintaining chart readability and performance
+  </Card>
+  
+  <Card title="Error Handling" icon="shield-check">
+    Try-catch blocks ensure the app continues running even if API requests fail
+  </Card>
+</CardGroup>
+
+## API Integration
+
+The monitoring system uses axios to fetch data from the CO2 API:
+
+```jsx src/components/CO2Dashboard.js
+const response = await axios.get("https://co2-api.vercel.app/api/co2");
+const { co2, timestamp } = response.data;
+```
+
+### Expected API Response
+
+The API returns a JSON object with:
+
+```json
+{
+  "co2": 450,
+  "timestamp": "13/03/26, 10:30 a.m."
+}
+```
+
+## Data Window Management
+
+To prevent unbounded memory growth and maintain chart readability, the system maintains exactly 10 data points:
+
+```jsx src/components/CO2Dashboard.js
+setCo2Data((prevData) => {
+    const newData = [...prevData, co2];
+    if (newData.length > 10) newData.shift();  // Remove oldest
+    return newData;
+});
+```
+
+<Info>
+  The `shift()` method removes the oldest element when the array exceeds 10 items, creating a sliding window effect.
+</Info>
+
+## Time Formatting
+
+Timestamps from the API are converted to a more readable format using the `formatTime` utility:
+
+```jsx src/components/CO2Dashboard.js
+const formatTime = (timestamp) => {
+    const [datePart, timePartWithPeriod] = timestamp.split(", ");
+    const [day, month, year] = datePart.split("/");
+    const [timePart, period] = timePartWithPeriod.split(" ");
+    let [hours, minutes] = timePart.split(":");
+    
+    // Convert 12-hour to 24-hour format
+    if (period.toLowerCase() === "p.m." && hours !== "12") {
+        hours = parseInt(hours) + 12;
+    } else if (period.toLowerCase() === "a.m." && hours === "12") {
+        hours = "00";
+    }
+    
+    const isoDate = `20${year}-${month}-${day}T${hours}:${minutes}:00`;
+    const date = new Date(isoDate);
+    
+    return date.toLocaleTimeString('es-MX', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    });
+};
+```
+
+This function:
+1. Parses the custom timestamp format (e.g., "13/03/26, 10:30 a.m.")
+2. Converts from 12-hour to 24-hour time
+3. Creates an ISO date string
+4. Formats using Mexican Spanish locale in 24-hour format
+
+<Warning>
+  Invalid timestamps are caught and logged to prevent chart rendering errors.
+</Warning>
+
+## Display Component
+
+The latest CO2 reading is prominently displayed:
+
+```jsx src/components/CO2Dashboard.js
+<h2>Medición en Tiempo Real</h2>
+<h1>{latestCO2 ? `${latestCO2} ppm` : "Cargando..."}</h1>
+```
+
+While data is being fetched initially, "Cargando..." (Loading...) is shown. Once the first reading arrives, it displays the value in parts per million (ppm).
+
+## Performance Considerations
+
+<Tip>
+  The 5-second polling interval balances real-time responsiveness with server load and network efficiency. For greenhouse monitoring, this provides adequate granularity for tracking CO2 level changes.
+</Tip>
+
+### Why Polling Instead of WebSockets?
+
+This implementation uses HTTP polling rather than WebSockets because:
+- Simpler implementation and deployment
+- Lower server resource requirements
+- Adequate update frequency for CO2 monitoring
+- Better compatibility with serverless deployments (Vercel)
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Data Visualization" icon="chart-area" href="/features/data-visualization">
+    Learn how the real-time data is rendered into interactive charts
+  </Card>
+  
+  <Card title="PWA Capabilities" icon="mobile" href="/features/pwa-capabilities">
+    Discover how the app works offline and can be installed on mobile devices
+  </Card>
+</CardGroup>

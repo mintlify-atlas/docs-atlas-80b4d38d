@@ -1,0 +1,447 @@
+---
+title: 'PWA Capabilities'
+description: 'Discover how the CO2 Monitor functions as a Progressive Web App with offline support and mobile installation'
+icon: 'mobile-screen'
+---
+
+## Overview
+
+The CO2 Monitor is built as a Progressive Web App (PWA), enabling it to be installed on mobile devices and desktops like a native application. This provides users with a more app-like experience, including home screen icons, standalone display mode, and improved performance.
+
+## What is a PWA?
+
+Progressive Web Apps are web applications that use modern web capabilities to deliver an app-like experience to users. They combine the best of web and native apps.
+
+<CardGroup cols={2}>
+  <Card title="Installable" icon="download">
+    Users can install the app on their device's home screen without visiting an app store
+  </Card>
+  
+  <Card title="Standalone Display" icon="window-restore">
+    Runs in its own window without browser UI, feeling like a native app
+  </Card>
+  
+  <Card title="Fast Loading" icon="bolt">
+    Optimized loading and caching strategies provide near-instant startup
+  </Card>
+  
+  <Card title="Reliable" icon="shield-check">
+    Works consistently across different devices and network conditions
+  </Card>
+</CardGroup>
+
+## Web App Manifest
+
+The PWA functionality is enabled through the `manifest.json` file, which defines how the app appears when installed:
+
+```json public/manifest.json
+{
+  "short_name": "CO2 Monitor",
+  "name": "Sistema de Monitoreo de CO2",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "version": "1.0.0"
+}
+```
+
+### Manifest Properties Explained
+
+<Steps>
+  <Step title="App Names">
+    `short_name` and `name` define how the app appears on home screens and in app switchers
+  </Step>
+  
+  <Step title="Icons Array">
+    Multiple icon sizes ensure the app looks sharp on all devices and contexts
+  </Step>
+  
+  <Step title="Display Mode">
+    `standalone` makes the app open in its own window without browser UI
+  </Step>
+  
+  <Step title="Color Scheme">
+    Theme and background colors provide a seamless launch experience
+  </Step>
+</Steps>
+
+### Icon Sizes
+
+The manifest defines three icon variants:
+
+| Icon | Size | Usage |
+|------|------|-------|
+| `favicon.ico` | 16x16 to 64x64 | Browser tabs and bookmarks |
+| `logo192.png` | 192x192 | Android home screen, app launcher |
+| `logo512.png` | 512x512 | Splash screens, high-DPI displays |
+
+<Info>
+  Providing multiple icon sizes ensures optimal display quality across different devices and contexts, from small notification icons to large splash screens.
+</Info>
+
+## HTML Integration
+
+The manifest is linked in the HTML document:
+
+```html public/index.html
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description"
+      content="Sistema de monitoreo de CO2 para invernaderos. Monitorea los niveles de CO2 en tiempo real para un ambiente saludable y controlado. Mantén la calidad del aire en óptimas condiciones para tus cultivos." />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <title>CO2</title>
+</head>
+```
+
+### Key Meta Tags
+
+#### Viewport Configuration
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+```
+Ensures proper responsive behavior on mobile devices by setting the viewport width to the device width.
+
+#### Theme Color
+```html
+<meta name="theme-color" content="#000000" />
+```
+Sets the color of browser UI elements (like the status bar on Android) to black, matching the app's design.
+
+#### App Description
+```html
+<meta name="description" content="Sistema de monitoreo de CO2 para invernaderos..." />
+```
+Provides a detailed description for search engines and when sharing the app link.
+
+<Note>
+  The description emphasizes the app's purpose for greenhouse monitoring and maintaining optimal air quality for crops.
+</Note>
+
+#### Apple Touch Icon
+```html
+<link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+```
+Specifies the icon used when installing the app on iOS devices.
+
+## Display Mode: Standalone
+
+The `"display": "standalone"` setting in manifest.json provides a native app experience:
+
+<CardGroup cols={2}>
+  <Card title="No Browser UI" icon="eye-slash">
+    Address bar, navigation buttons, and browser tabs are hidden
+  </Card>
+  
+  <Card title="Full Screen" icon="expand">
+    App uses the entire screen (minus system status bar)
+  </Card>
+  
+  <Card title="App Switcher" icon="window-restore">
+    Appears as separate app in task switcher/app drawer
+  </Card>
+  
+  <Card title="Independent Window" icon="square">
+    Runs in its own window, separate from the browser
+  </Card>
+</CardGroup>
+
+## Installation Process
+
+### On Mobile Devices (Android/iOS)
+
+<Steps>
+  <Step title="Open in Browser">
+    Navigate to the app URL in Chrome (Android) or Safari (iOS)
+  </Step>
+  
+  <Step title="Add to Home Screen">
+    - **Android**: Tap the menu (⋮) and select "Add to Home screen" or "Install app"
+    - **iOS**: Tap the Share button and select "Add to Home Screen"
+  </Step>
+  
+  <Step title="Confirm Installation">
+    Choose app name and confirm. The icon appears on your home screen
+  </Step>
+  
+  <Step title="Launch">
+    Tap the home screen icon to open the app in standalone mode
+  </Step>
+</Steps>
+
+### On Desktop (Chrome, Edge)
+
+<Steps>
+  <Step title="Open in Browser">
+    Visit the app URL in Chrome or Edge
+  </Step>
+  
+  <Step title="Install Prompt">
+    Click the install icon in the address bar or use browser menu: "Install CO2 Monitor"
+  </Step>
+  
+  <Step title="Confirmation">
+    A dialog appears. Click "Install" to add the app
+  </Step>
+  
+  <Step title="Launch">
+    App opens in a standalone window and adds a shortcut to your desktop/start menu
+  </Step>
+</Steps>
+
+<Tip>
+  Desktop PWA installations create shortcuts that can be pinned to the taskbar or dock, making the app as accessible as any native application.
+</Tip>
+
+## Start URL Configuration
+
+The manifest specifies where the app should start:
+
+```json
+"start_url": "."
+```
+
+The `"."` value means the app starts at the manifest's location (the root), ensuring users always begin at the main dashboard when launching from the home screen icon.
+
+## Color Theming
+
+Two color properties control the app's visual presentation:
+
+### Theme Color
+```json
+"theme_color": "#000000"
+```
+
+<CardGroup cols={2}>
+  <Card title="Android" icon="android">
+    Colors the status bar and toolbar in the browser and standalone mode
+  </Card>
+  
+  <Card title="iOS" icon="apple">
+    Tints the status bar when the app is launched
+  </Card>
+</CardGroup>
+
+### Background Color
+```json
+"background_color": "#ffffff"
+```
+
+Displayed on the splash screen while the app loads, providing a smooth transition before content appears.
+
+<Info>
+  The white background color creates a clean, professional appearance during app launch and matches most modern UI designs.
+</Info>
+
+## Service Worker Support
+
+The project is built with Create React App, which includes built-in service worker support through `react-scripts`. While not explicitly registered in the current `src/index.js`, the infrastructure is available:
+
+```jsx src/index.js
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+reportWebVitals();
+```
+
+### Enabling Service Worker
+
+To enable offline capabilities, you can activate the service worker by modifying `src/index.js`:
+
+```jsx
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+
+// After ReactDOM.render()...
+serviceWorkerRegistration.register();
+```
+
+<Note>
+  Create React App's service worker implementation provides:
+  - Offline-first caching strategy
+  - Automatic asset caching
+  - Cache-first for app shell
+  - Network-first for API calls
+</Note>
+
+## Web Vitals Monitoring
+
+The app includes performance monitoring:
+
+```jsx src/index.js
+import reportWebVitals from './reportWebVitals';
+
+reportWebVitals();
+```
+
+This tracks Core Web Vitals metrics:
+
+<CardGroup cols={3}>
+  <Card title="CLS" icon="align-left">
+    Cumulative Layout Shift - visual stability
+  </Card>
+  
+  <Card title="FID" icon="hand-pointer">
+    First Input Delay - interactivity
+  </Card>
+  
+  <Card title="FCP" icon="eye">
+    First Contentful Paint - loading performance
+  </Card>
+  
+  <Card title="LCP" icon="image">
+    Largest Contentful Paint - main content loading
+  </Card>
+  
+  <Card title="TTFB" icon="clock">
+    Time to First Byte - server response time
+  </Card>
+</CardGroup>
+
+### Custom Analytics
+
+You can send metrics to analytics services:
+
+```jsx
+reportWebVitals(console.log);
+// Or send to analytics endpoint
+reportWebVitals(sendToAnalytics);
+```
+
+## Dependencies
+
+The PWA functionality relies on these packages:
+
+```json package.json
+{
+  "react-scripts": "5.0.1",
+  "web-vitals": "^2.1.4"
+}
+```
+
+- **react-scripts**: Provides build system with PWA support
+- **web-vitals**: Measures real-world performance metrics
+
+## Browser Compatibility
+
+PWA features work across modern browsers:
+
+| Feature | Chrome | Edge | Safari | Firefox |
+|---------|--------|------|--------|----------|
+| Install prompt | ✓ | ✓ | iOS only | Partial |
+| Manifest | ✓ | ✓ | ✓ | ✓ |
+| Standalone mode | ✓ | ✓ | iOS only | - |
+| Service workers | ✓ | ✓ | ✓ | ✓ |
+
+<Warning>
+  iOS Safari has some limitations:
+  - No automatic install prompts
+  - Must manually use "Add to Home Screen"
+  - Limited service worker capabilities
+  - No background sync
+</Warning>
+
+## Benefits for Greenhouse Monitoring
+
+PWA capabilities are especially valuable for agricultural environments:
+
+<Steps>
+  <Step title="Quick Access">
+    Operators can launch the monitoring dashboard with one tap from their phone's home screen
+  </Step>
+  
+  <Step title="Offline Resilience">
+    With service workers enabled, the app shell loads even without internet connectivity
+  </Step>
+  
+  <Step title="Immersive Display">
+    Standalone mode provides distraction-free monitoring without browser chrome
+  </Step>
+  
+  <Step title="Cross-Device">
+    Same installation experience on tablets, phones, and desktop computers
+  </Step>
+</Steps>
+
+<Tip>
+  For greenhouse operators moving between locations, installing the PWA on both mobile and office computers ensures consistent monitoring access.
+</Tip>
+
+## Optimization Checklist
+
+To maximize PWA effectiveness:
+
+- [ ] Provide icons in all required sizes (192x192, 512x512)
+- [ ] Set meaningful `name` and `short_name`
+- [ ] Choose appropriate `theme_color` and `background_color`
+- [ ] Use `display: "standalone"` for app-like experience
+- [ ] Link manifest in HTML `<head>`
+- [ ] Add `apple-touch-icon` for iOS support
+- [ ] Include descriptive meta tags
+- [ ] Register service worker for offline support
+- [ ] Test installation on multiple devices
+- [ ] Monitor Web Vitals for performance
+
+## Future Enhancements
+
+Potential PWA improvements:
+
+<CardGroup cols={2}>
+  <Card title="Push Notifications" icon="bell">
+    Alert operators when CO2 levels exceed safe thresholds
+  </Card>
+  
+  <Card title="Background Sync" icon="rotate">
+    Queue data updates when offline and sync when connection returns
+  </Card>
+  
+  <Card title="Share Target" icon="share-nodes">
+    Allow sharing CO2 data reports to the app
+  </Card>
+  
+  <Card title="App Shortcuts" icon="bolt">
+    Add quick actions to the home screen icon long-press menu
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Real-Time Monitoring" icon="signal" href="/features/real-time-monitoring">
+    Learn how the 5-second polling system works
+  </Card>
+  
+  <Card title="Data Visualization" icon="chart-line" href="/features/data-visualization">
+    Explore Chart.js integration and customization
+  </Card>
+</CardGroup>
